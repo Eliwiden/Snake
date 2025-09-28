@@ -1,3 +1,13 @@
-body{
-    margin: 0
+body, html{
+    margin: 0;
+    height: calc(100% - 10px);
+}
+
+#field{
+    height: calc(100% - 50px);
+    border: 1px solid green;
+}
+
+#svg-container{
+    position: absolute;
 }
