@@ -1,18 +1,37 @@
+class CSegment extends HTMLDivElement{
+    nStepX = 0;
+    nStepY = 0;
+
+    Move(x: number, y: number, stepX: number, stepY: number){
+        const rect = this.getBoundingClientRect();
+        if(rect.left == x && rect.top == y){
+            this.nStepX = stepX;
+            this.nStepY = stepY;
+        }
+        this.style.left = (rect.left + nStepX) + 'px';
+        this.style.top = (rect.top + nStepY) + 'px';
+    }
+}
+
 const STEP = 0.4;
 
 let nStepX = STEP;
 let nStepY = 0;
 
 function Move(){//Начало функции Move с параметром id типа string
-    const domSnakeHead = document.getElementById('svg-container')!;//Получаем элемент с id 'svg-container'
-    const rect = domSnakeHead!.getBoundingClientRect();//Получаем текущую позицию слева у элемента относительно окна
-    const domBorder = document.getElementById('field');//Получаем элемент с ид поля
-    const oRect = domBorder!.getBoundingClientRect();//Получаем размер и позицию границы поля относительно окна
+    if(!aSnake || !aSnake.length){
+        return;
+    }
+    const rect = aSnake[0].getBoundingClientRect();//Получаем текущую позицию слева у элемента относительно окна
+    const oRect = document.getElementById('field')!.getBoundingClientRect();//Получаем размер и позицию границы поля относительно окна
     if(rect.right + nStepX <= oRect.right && rect.bottom + nStepY <= oRect.bottom &&
         rect.left + nStepX >= oRect.left && rect.top + nStepY >= oRect.top){
-            domSnakeHead.style.left = (rect.left + nStepX) + 'px';
-            domSnakeHead.style.top = (rect.top + nStepY) + 'px';
+        for(const segment of aSnake){
+            const oSegRect = segment.getBoundingClientRect();
+            segment.style.left = (oSegRect.left + nStepX) + 'px';
+            segment.style.top = (oSegRect.top + nStepY) + 'px';
         }
+    }
 }
 
 setInterval(Move, STEP*10);
@@ -66,10 +85,12 @@ function CreateSnakeSegment(x: number, y: number, size: number){
     return dom;
 }
 
-const head = CreateSnakeSegment(100, 100, 100);
+const aSnake: HTMLDivElement[]=[];
 
-head.id = 'svg-container';
-
-CreateSnakeSegment(0, 100, 50);
-CreateSnakeSegment(40, 100, 50);
-CreateSnakeSegment(80, 100, 50);
+function CreateSnake(nSegment: number, x: number, y: number){
+    aSnake.push(CreateSnakeSegment(x, y, 100));
+    for(let i=0; i<nSegment;i++){
+        aSnake.push(CreateSnakeSegment(x-(i+1)*25, y, 30));
+    }
+}
+CreateSnake(5, 500, 200)
