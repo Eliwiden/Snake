@@ -1,5 +1,18 @@
+class CTurnPoint{
+    nX: number;
+    nY: number;
+    nStepX: number;
+    nStepY: number;
+    constructor(x: number, y: number, stepX: number, stepY: number){
+        this.nStepX = stepX 
+        this.nStepY = stepY
+        this.nX = x;
+        this.nY = y;
+    }
+}
+const aTurnPoints: CTurnPoint[]=[]
 class CSegment{
-    nStepX = 0;//Кол-во пикселей смещения по оси X для движения сегмента
+    nStepX = STEP;//Кол-во пикселей смещения по оси X для движения сегмента
     nStepY = 0;//Кол-во пикселей смещения по оси Y для движения сегмента
     dom:HTMLDivElement;
     nX: number; 
@@ -12,10 +25,17 @@ class CSegment{
         this.nSize = size;
     }
     Move(){
-        this.nX = nStepX;
-        this.nY = nStepY;
+        this.nX += this.nStepX;
+        this.nY += this.nStepY;
         this.dom.style.left = (this.nX-this.nSize/2) + 'px';
         this.dom.style.top = (this.nY-this.nSize/2) + 'px';
+        for(const tp of aTurnPoints){
+            if(Math.abs(this.nX-tp.nX) <= 5 && Math.abs(this.nY-tp.nY) <= 5){
+                this.nStepX = tp.nStepX;
+                this.nStepY = tp.nStepY;
+                break;
+            }
+        }
     }
 }
 
@@ -70,6 +90,10 @@ function ChangeDirect(direct:'right'|'left'){//Если меняем напра�
             nStepY = 0;
         }
     }
+    aTurnPoints.push(new CTurnPoint(aSnake[0].nX, aSnake[0].nY, nStepX, nStepY));
+    const domPoint = document.createElement('div');
+    domPoint.style = 'position: absolute; top: '+aSnake[0].nY+'px; left: '+aSnake[0].nX+'px; height: 3px; width: 3px; border: solid;';
+    document.body.append(domPoint)
 }
 
 const ravSvg = `<svg viewBox="0 0 100 100">
