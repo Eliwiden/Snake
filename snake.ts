@@ -1,15 +1,21 @@
-class CSegment extends HTMLDivElement{
+class CSegment{
     nStepX = 0;//Кол-во пикселей смещения по оси X для движения сегмента
     nStepY = 0;//Кол-во пикселей смещения по оси Y для движения сегмента
-
-    Move(x: number, y: number, stepX: number, stepY: number){
-        const rect = this.getBoundingClientRect();//Получаем текущие координаты и размеры элемента
-        if(rect.left == x && rect.top == y){//Если текущая позиция совпадает с заданной
-            this.nStepX = stepX;//Ползём по X
-            this.nStepY = stepY;//Ползём по Y
-        }//Сдвигаем элемент на величину смещения по X и Y относительно текущего положения
-        this.style.left = (rect.left + nStepX) + 'px';
-        this.style.top = (rect.top + nStepY) + 'px';
+    dom:HTMLDivElement;
+    nX: number; 
+    nY: number; 
+    nSize: number;
+    constructor(x: number, y: number, size: number){
+        this.dom = CreateSnakeSegment(x, y, size);
+        this.nX = x;
+        this.nY = y;
+        this.nSize = size;
+    }
+    Move(){
+        this.nX = nStepX;
+        this.nY = nStepY;
+        this.dom.style.left = (this.nX-this.nSize/2) + 'px';
+        this.dom.style.top = (this.nY-this.nSize/2) + 'px';
     }
 }
 
@@ -22,14 +28,12 @@ function Move(){//Начало функции Move с параметром id т
     if(!aSnake || !aSnake.length){//Если массив пуст или undefined
         return;//Перестаём работу
     }
-    const rect = aSnake[0].getBoundingClientRect();//Получаем текущую позицию слева у элемента относительно окна
+    const rect = aSnake[0].dom.getBoundingClientRect();//Получаем текущую позицию слева у элемента относительно окна
     const oRect = document.getElementById('field')!.getBoundingClientRect();//Получаем размер и позицию границы поля относительно окна
     if(rect.right + nStepX <= oRect.right && rect.bottom + nStepY <= oRect.bottom &&
         rect.left + nStepX >= oRect.left && rect.top + nStepY >= oRect.top){
         for(const segment of aSnake){//Для каждого сегмента змейки
-            const oSegRect = segment.getBoundingClientRect();//Получаем текущие координаты сегмента
-            segment.style.left = (oSegRect.left + nStepX) + 'px';//Ползём по X
-            segment.style.top = (oSegRect.top + nStepY) + 'px';//Ползём по Y
+            segment.Move()
         }
     }
 }
@@ -76,8 +80,8 @@ const ravSvg = `<svg viewBox="0 0 100 100">
 function CreateSnakeSegment(x: number, y: number, size: number){//Создаём сегмент змейки
     const dom = document.createElement('div');//Создаём контейнер div
     dom.className = 'snake_segment';//Присваиваем класс для стилей
-    dom.style.top = y + 'px';//Позиция по вертикали
-    dom.style.left = x + 'px';//Позиция по горизонтали
+    dom.style.top = (y - size/2) + 'px';//Позиция по вертикали
+    dom.style.left = (x - size/2) + 'px';//Позиция по горизонтали
     dom.style.height = size + 'px';//Задаём высоту
     dom.style.width = size + 'px';//Задаём ширину
     dom.innerHTML = ravSvg;//Вставляем внутрь SVG
@@ -85,12 +89,12 @@ function CreateSnakeSegment(x: number, y: number, size: number){//Создаём
     return dom;//Возвращаем созданный элемент
 }
 
-const aSnake: HTMLDivElement[]=[];//Создаём массив для хранения сегментов змейки
+const aSnake: CSegment[]=[];//Создаём массив для хранения сегментов змейки
 
 function CreateSnake(nSegment: number, x: number, y: number){//Создаёт змейку из нескольких сегментов
-    aSnake.push(CreateSnakeSegment(x, y, 100));//Создаём голову змейки побольше размером
+    aSnake.push(new CSegment(x, y, 100));//Создаём голову змейки побольше размером
     for(let i=0; i<nSegment;i++){
-        aSnake.push(CreateSnakeSegment(x-(i+1)*25, y, 30));//Создаём сегменты по меньше и сдвигаем по X
+        aSnake.push(new CSegment(x-(i+1)*25, y, 30));//Создаём сегменты по меньше и сдвигаем по X
     }
 }
 CreateSnake(5, 500, 200)//Создаём змейку из 6 сегментов
