@@ -1,8 +1,8 @@
 class CTurnPoint{
-    nX: number;
-    nY: number;
-    nStepX: number;
-    nStepY: number;
+    nX: number;//X точка поворота змеи
+    nY: number;//Y точка поворота змеи
+    nStepX: number;//Шаг, который должен сделать змея при достижении точки
+    nStepY: number;//Шаг, который должна сделать змея при достижении точки
     constructor(x: number, y: number, stepX: number, stepY: number){
         this.nStepX = stepX 
         this.nStepY = stepY
@@ -10,30 +10,30 @@ class CTurnPoint{
         this.nY = y;
     }
 }
-const aTurnPoints: CTurnPoint[]=[]
+const aTurnPoints: CTurnPoint[]=[]//Массив всех точек поворота
 class CSegment{
     nStepX = STEP;//Кол-во пикселей смещения по оси X для движения сегмента
     nStepY = 0;//Кол-во пикселей смещения по оси Y для движения сегмента
-    dom:HTMLDivElement;
-    nX: number; 
-    nY: number; 
-    nSize: number;
+    dom:HTMLDivElement;//Часть сегмента змейки визуально
+    nX: number;//Текущая координата X
+    nY: number;//Текущая координата Y
+    nSize: number;//Размер сегмента в пикселях
     constructor(x: number, y: number, size: number){
-        this.dom = CreateSnakeSegment(x, y, size);
+        this.dom = CreateSnakeSegment(x, y, size);//Создаем сегмент по координатам и размеру
         this.nX = x;
         this.nY = y;
         this.nSize = size;
     }
     Move(){
-        this.nX += this.nStepX;
-        this.nY += this.nStepY;
-        this.dom.style.left = (this.nX-this.nSize/2) + 'px';
-        this.dom.style.top = (this.nY-this.nSize/2) + 'px';
-        for(const tp of aTurnPoints){
+        this.nX += this.nStepX;//Ползём по X
+        this.nY += this.nStepY;//Ползём по Y
+        this.dom.style.left = (this.nX-this.nSize/2) + 'px';//Обновляем позицию DOM элемента по X
+        this.dom.style.top = (this.nY-this.nSize/2) + 'px';//Обновляем позицию DOM элемента по Y
+        for(const tp of aTurnPoints){//Проверяем все точки поворота
             if(Math.abs(this.nX-tp.nX) <= 5 && Math.abs(this.nY-tp.nY) <= 5){
-                this.nStepX = tp.nStepX;
+                this.nStepX = tp.nStepX;//Поворачиваемся по нажатию
                 this.nStepY = tp.nStepY;
-                break;
+                break;//Конец цикла
             }
         }
     }
@@ -91,6 +91,7 @@ function ChangeDirect(direct:'right'|'left'){//Если меняем напра�
         }
     }
     aTurnPoints.push(new CTurnPoint(aSnake[0].nX, aSnake[0].nY, nStepX, nStepY));
+    //Для визуализации точек поворота создаём маленький div и позиционируем его на поле в точке поворота
     const domPoint = document.createElement('div');
     domPoint.style = 'position: absolute; top: '+aSnake[0].nY+'px; left: '+aSnake[0].nX+'px; height: 3px; width: 3px; border: solid;';
     document.body.append(domPoint)
