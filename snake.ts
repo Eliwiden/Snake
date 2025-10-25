@@ -3,11 +3,16 @@ class CTurnPoint{
     nY: number;//Y точка поворота змеи
     nStepX: number;//Шаг, который должен сделать змея при достижении точки
     nStepY: number;//Шаг, который должна сделать змея при достижении точки
-    constructor(x: number, y: number, stepX: number, stepY: number){
+    dom: HTMLElement;
+    constructor(x: number, y: number, stepX: number, stepY: number, dom: HTMLElement){
         this.nStepX = stepX 
         this.nStepY = stepY
         this.nX = x;
         this.nY = y;
+        this.dom = dom;
+    }
+    DeleteDom(){
+        this.dom.remove();
     }
 }
 const aTurnPoints: CTurnPoint[]=[]//Массив всех точек поворота
@@ -18,6 +23,7 @@ class CSegment{
     nX: number;//Текущая координата X
     nY: number;//Текущая координата Y
     nSize: number;//Размер сегмента в пикселях
+    bLastSegment = false;
     constructor(x: number, y: number, size: number){
         this.dom = CreateSnakeSegment(x, y, size);//Создаем сегмент по координатам и размеру
         this.nX = x;
@@ -29,10 +35,17 @@ class CSegment{
         this.nY += this.nStepY;//Ползём по Y
         this.dom.style.left = (this.nX-this.nSize/2) + 'px';//Обновляем позицию DOM элемента по X
         this.dom.style.top = (this.nY-this.nSize/2) + 'px';//Обновляем позицию DOM элемента по Y
-        for(const tp of aTurnPoints){//Проверяем все точки поворота
-            if(Math.abs(this.nX-tp.nX) <= 5 && Math.abs(this.nY-tp.nY) <= 5){
+        for(let i=0; i<aTurnPoints.length;i++){//Проверяем все точки поворота
+            const tp = aTurnPoints[i];
+            const nXU2 = (this.nStepX == 0)? this.nSize : STEP;
+            const nYU2 = (this.nStepY == 0)? this.nSize : STEP;
+            if(Math.abs(this.nX-tp.nX) <= nXU2 && Math.abs(this.nY-tp.nY) <= nYU2){
                 this.nStepX = tp.nStepX;//Поворачиваемся по нажатию
                 this.nStepY = tp.nStepY;
+                if(this.bLastSegment){
+                    tp.DeleteDom();
+                    aTurnPoints.splice(i,1);
+                }
                 break;//Конец цикла
             }
         }
@@ -58,9 +71,13 @@ function Move(){//Начало функции Move с параметром id т
     }
 }
 //Запускаем функцию чтобы змейка ползла каждые 10мс
-setInterval(Move, STEP*10);
+setInterval(Move, STEP*20);
 
 function ChangeDirect(direct:'right'|'left'){//Если меняем направление
+    const oLastTP = aTurnPoints[aTurnPoints.length-1];
+    if(oLastTP && Math.abs(aSnake[0].nX-oLastTP.nX) <= STEP && Math.abs(aSnake[0].nY-oLastTP.nY)){
+        return;
+    }
     if(direct == "right"){
         if(nStepX>0){//Если поварачиваем направо
             nStepX = 0;//Сбрасываем координаты по X
@@ -90,11 +107,13 @@ function ChangeDirect(direct:'right'|'left'){//Если меняем напра�
             nStepY = 0;
         }
     }
-    aTurnPoints.push(new CTurnPoint(aSnake[0].nX, aSnake[0].nY, nStepX, nStepY));
     //Для визуализации точек поворота создаём маленький div и позиционируем его на поле в точке поворота
     const domPoint = document.createElement('div');
     domPoint.style = 'position: absolute; top: '+aSnake[0].nY+'px; left: '+aSnake[0].nX+'px; height: 3px; width: 3px; border: solid;';
-    document.body.append(domPoint)
+    document.body.append(domPoint);
+    aTurnPoints.push(new CTurnPoint(aSnake[0].nX, aSnake[0].nY, nStepX, nStepY, domPoint));
+    aSnake[0].nStepX = nStepX;
+    aSnake[0].nStepY = nStepY;
 }
 
 const ravSvg = `<svg viewBox="0 0 100 100">
@@ -121,5 +140,6 @@ function CreateSnake(nSegment: number, x: number, y: number){//Создаёт з
     for(let i=0; i<nSegment;i++){
         aSnake.push(new CSegment(x-(i+1)*25, y, 30));//Создаём сегменты по меньше и сдвигаем по X
     }
+    aSnake[aSnake.length-1].bLastSegment = true;
 }
 CreateSnake(5, 500, 200)//Создаём змейку из 6 сегментов
