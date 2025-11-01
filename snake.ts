@@ -15,20 +15,42 @@ class CTurnPoint{
         this.dom.remove();
     }
 }
-const aTurnPoints: CTurnPoint[]=[]//Массив всех точек поворота
-class CSegment{
-    nStepX = STEP;//Кол-во пикселей смещения по оси X для движения сегмента
-    nStepY = 0;//Кол-во пикселей смещения по оси Y для движения сегмента
+const aTurnPoints: CTurnPoint[]=[];//Массив всех точек поворота
+const aFood: CFood[]=[];
+class CScreenObject{
     dom:HTMLDivElement;//Часть сегмента змейки визуально
     nX: number;//Текущая координата X
     nY: number;//Текущая координата Y
     nSize: number;//Размер сегмента в пикселях
-    bLastSegment = false;
-    constructor(x: number, y: number, size: number){
-        this.dom = CreateSnakeSegment(x, y, size);//Создаем сегмент по координатам и размеру
+    constructor(x: number, y: number, size: number, fObjectCreator: Function){
+        this.dom = fObjectCreator(x, y, size);//Создаем сегмент по координатам и размеру
         this.nX = x;
         this.nY = y;
         this.nSize = size;
+    }
+}
+class CFood extends CScreenObject{
+    constructor(x: number, y: number, size: number){
+        function CreateFood(x: number, y: number, size: number){//Создаём сегмент змейки
+            const dom = document.createElement('div');//Создаём контейнер div
+            dom.className = 'CFood';//Присваиваем класс для стилей
+            dom.style.top = (y - size/2) + 'px';//Позиция по вертикали
+            dom.style.left = (x - size/2) + 'px';//Позиция по горизонтали
+            dom.style.height = size + 'px';//Задаём высоту
+            dom.style.width = size + 'px';//Задаём ширину
+            document.body.append(dom);//Добавляем сегмент в тело документа
+            return dom;//Возвращаем созданный элемент
+        }
+
+        super(x, y, size, CreateFood);
+    }
+}
+class CSegment extends CScreenObject{
+    nStepX = STEP;//Кол-во пикселей смещения по оси X для движения сегмента
+    nStepY = 0;//Кол-во пикселей смещения по оси Y для движения сегмента
+    bLastSegment = false;
+    constructor(x: number, y: number, size: number){
+        super(x, y, size, CreateSnakeSegment);
     }
     Move(){
         this.nX += this.nStepX;//Ползём по X
@@ -69,9 +91,17 @@ function Move(){//Начало функции Move с параметром id т
             segment.Move()
         }
     }
+    
 }
 //Запускаем функцию чтобы змейка ползла каждые 10мс
 setInterval(Move, STEP*20);
+setInterval(()=>{
+    if(aFood.length < 5){
+        const x = Math.random()*(document.documentElement.clientWidth - 200)+ 100;
+        const y = Math.random()*(document.documentElement.clientHeight - 200)+ 100;
+        aFood.push(new CFood(x, y, 50));
+    }
+}, 5000)
 
 function ChangeDirect(direct:'right'|'left'){//Если меняем направление
     const oLastTP = aTurnPoints[aTurnPoints.length-1];
