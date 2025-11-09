@@ -38,6 +38,10 @@ class CFood extends CScreenObject{
         }
         return false;
     }
+
+    Dissapear(){
+        this.dom.remove()
+    }
     constructor(x: number, y: number, size: number){
         function CreateFood(x: number, y: number, size: number){//Создаём сегмент змейки
             const dom = document.createElement('div');//Создаём контейнер div
@@ -100,8 +104,9 @@ function Move(){//Начало функции Move с параметром id т
         }
     }
 
-    for(let i=aFood.length-1; i>=0;i++){
+    for(let i=aFood.length-1; i>=0;i--){
         if(aFood[i].IsObjectIn()){
+            aFood[i].Dissapear();
             aFood.splice(i,1);
         }
     }
