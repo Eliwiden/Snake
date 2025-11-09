@@ -30,6 +30,14 @@ class CScreenObject{
     }
 }
 class CFood extends CScreenObject{
+    IsObjectIn(){
+
+        if(Math.abs(aSnake[0].nX-this.nX)-(this.nSize/2+aSnake[0].nSize/2) < 0 && 
+            Math.abs(aSnake[0].nY-this.nY)-(this.nSize/2+aSnake[0].nSize/2) < 0 ){
+                return true;
+        }
+        return false;
+    }
     constructor(x: number, y: number, size: number){
         function CreateFood(x: number, y: number, size: number){//Создаём сегмент змейки
             const dom = document.createElement('div');//Создаём контейнер div
@@ -89,6 +97,12 @@ function Move(){//Начало функции Move с параметром id т
         rect.left + nStepX >= oRect.left && rect.top + nStepY >= oRect.top){
         for(const segment of aSnake){//Для каждого сегмента змейки
             segment.Move()
+        }
+    }
+
+    for(let i=aFood.length-1; i>=0;i++){
+        if(aFood[i].IsObjectIn()){
+            aFood.splice(i,1);
         }
     }
     
