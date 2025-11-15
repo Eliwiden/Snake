@@ -108,6 +108,21 @@ function Move(){//Начало функции Move с параметром id т
         if(aFood[i].IsObjectIn()){
             aFood[i].Dissapear();
             aFood.splice(i,1);
+            let offsetX =  aSnake[aSnake.length-1].nX;
+            if(aSnake[aSnake.length-1].nStepX > 0){
+                offsetX -= STEP*50;
+            }else if(aSnake[aSnake.length-1].nStepX < 0){
+                offsetX += STEP*50;
+            }
+            let offsetY =  aSnake[aSnake.length-1].nY;
+            if(aSnake[aSnake.length-1].nStepY > 0){
+                offsetY -= STEP*50;
+            }else if(aSnake[aSnake.length-1].nStepY < 0){
+                offsetY += STEP*50;
+            }
+            aSnake[aSnake.length-1].bLastSegment = false;
+            aSnake.push(new CSegment(offsetX, offsetY, 30));
+            aSnake[aSnake.length-1].bLastSegment = true;
         }
     }
     
@@ -187,7 +202,7 @@ const aSnake: CSegment[]=[];//Создаём массив для хранени�
 function CreateSnake(nSegment: number, x: number, y: number){//Создаёт змейку из нескольких сегментов
     aSnake.push(new CSegment(x, y, 100));//Создаём голову змейки побольше размером
     for(let i=0; i<nSegment;i++){
-        aSnake.push(new CSegment(x-(i+1)*25, y, 30));//Создаём сегменты по меньше и сдвигаем по X
+        aSnake.push(new CSegment(x-(i+1)*50*STEP, y, 30));//Создаём сегменты по меньше и сдвигаем по X
     }
     aSnake[aSnake.length-1].bLastSegment = true;
 }
