@@ -29,9 +29,9 @@ class CScreenObject{
         this.nSize = size;
     }
 }
-class CFood extends CScreenObject{
+class CFood extends CScreenObject{ //Метод поедания еды головой
     IsObjectIn(){
-
+        //Пересечение по Х и Y
         if(Math.abs(aSnake[0].nX-this.nX)-(this.nSize/2+aSnake[0].nSize/2) < 0 && 
             Math.abs(aSnake[0].nY-this.nY)-(this.nSize/2+aSnake[0].nSize/2) < 0 ){
                 return true;
@@ -104,24 +104,29 @@ function Move(){//Начало функции Move с параметром id т
         }
     }
 
-    for(let i=aFood.length-1; i>=0;i--){
-        if(aFood[i].IsObjectIn()){
+    for(let i=aFood.length-1; i>=0;i--){//Проверяем еду с конца массива
+        if(aFood[i].IsObjectIn()){//Поедание
             aFood[i].Dissapear();
-            aFood.splice(i,1);
-            let offsetX =  aSnake[aSnake.length-1].nX;
+            aFood.splice(i,1);//Координаты для нового сегмента
+            let offsetX =  aSnake[aSnake.length-1].nX;//Корректируем X хвоста если змейка движется вправо
             if(aSnake[aSnake.length-1].nStepX > 0){
                 offsetX -= STEP*50;
+                //Корректируем X хвоста если змейка движется влево
             }else if(aSnake[aSnake.length-1].nStepX < 0){
                 offsetX += STEP*50;
             }
-            let offsetY =  aSnake[aSnake.length-1].nY;
-            if(aSnake[aSnake.length-1].nStepY > 0){
+            let offsetY =  aSnake[aSnake.length-1].nY;//Получаем координаты Y хвоста
+            if(aSnake[aSnake.length-1].nStepY > 0){//Корректируем Y хвоста если змейка движется вниз
                 offsetY -= STEP*50;
-            }else if(aSnake[aSnake.length-1].nStepY < 0){
+            }else if(aSnake[aSnake.length-1].nStepY < 0){//Корректируем Y хвоста если змейка движется вверх
                 offsetY += STEP*50;
             }
             aSnake[aSnake.length-1].bLastSegment = false;
+            const newSegment = new CSegment(offsetX, offsetY, 30);
             aSnake.push(new CSegment(offsetX, offsetY, 30));
+            newSegment.nStepX = aSnake[aSnake.length-1].nStepX;
+            newSegment.nStepY = aSnake[aSnake.length-1].nStepY;
+            aSnake.push(newSegment);
             aSnake[aSnake.length-1].bLastSegment = true;
         }
     }
@@ -130,7 +135,7 @@ function Move(){//Начало функции Move с параметром id т
 //Запускаем функцию чтобы змейка ползла каждые 10мс
 setInterval(Move, STEP*20);
 setInterval(()=>{
-    if(aFood.length < 5){
+    if(aFood.length < 5){//Генерим случайную координату для еды
         const x = Math.random()*(document.documentElement.clientWidth - 200)+ 100;
         const y = Math.random()*(document.documentElement.clientHeight - 200)+ 100;
         aFood.push(new CFood(x, y, 50));
