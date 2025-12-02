@@ -58,11 +58,13 @@ class CFood extends CScreenObject{ //Метод поедания еды голо
     }
 }
 class CSegment extends CScreenObject{
-    nStepX = STEP;//Кол-во пикселей смещения по оси X для движения сегмента
-    nStepY = 0;//Кол-во пикселей смещения по оси Y для движения сегмента
+    nStepX:number;//Кол-во пикселей смещения по оси X для движения сегмента
+    nStepY:number;//Кол-во пикселей смещения по оси Y для движения сегмента
     bLastSegment = false;
-    constructor(x: number, y: number, size: number){
+    constructor(x: number, y: number, size: number, nSX?:number, nSY?:number){
         super(x, y, size, CreateSnakeSegment);
+		this.nStepX = (nSX === undefined)? STEP : nSX;//Кол-во пикселей смещения по оси X для движения сегмента
+    	this.nStepY = (nSY === undefined)? 0 : nSY;//Кол-во пикселей смещения по оси Y для движения сегмента
     }
     Move(){
         this.nX += this.nStepX;//Ползём по X
@@ -122,10 +124,7 @@ function Move(){//Начало функции Move с параметром id т
                 offsetY += STEP*50;
             }
             aSnake[aSnake.length-1].bLastSegment = false;
-            const newSegment = new CSegment(offsetX, offsetY, 30);
-            aSnake.push(new CSegment(offsetX, offsetY, 30));
-            newSegment.nStepX = aSnake[aSnake.length-1].nStepX;
-            newSegment.nStepY = aSnake[aSnake.length-1].nStepY;
+            const newSegment = new CSegment(offsetX, offsetY, 30, aSnake[aSnake.length-1].nStepX, aSnake[aSnake.length-1].nStepY);
             aSnake.push(newSegment);
             aSnake[aSnake.length-1].bLastSegment = true;
         }
