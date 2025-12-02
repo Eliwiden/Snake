@@ -143,7 +143,7 @@ setInterval(()=>{
 
 function ChangeDirect(direct:'right'|'left'){//Если меняем направление
     const oLastTP = aTurnPoints[aTurnPoints.length-1];
-    if(oLastTP && Math.abs(aSnake[0].nX-oLastTP.nX) <= STEP && Math.abs(aSnake[0].nY-oLastTP.nY)){
+    if(oLastTP && Math.abs(aSnake[0].nX-oLastTP.nX) <= STEP && Math.abs(aSnake[0].nY-oLastTP.nY) <= STEP){
         return;
     }
     if(direct == "right"){
